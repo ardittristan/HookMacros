@@ -26,7 +26,7 @@ You can have more than one macro on a line, for the same hook, but you can't put
 
 ## Changelog
 
-Check the [Changelog](https://raw.githubusercontent.com/ardittristan/HookMacros/master/CHANGELOG.md)
+Check the [Changelog](https://github.com/ardittristan/HookMacros/blob/master/CHANGELOG.md)
 
 - - -
 
