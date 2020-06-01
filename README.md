@@ -20,6 +20,10 @@ The general input method is:
 
 You can have more than one macro on a line, for the same hook, but you can't put multiple hooks on the same line.
 
+### Things to watch out for
+
+Don't create macros that run from the chat hook *and* create chat messages that take more than 1 seconds to output to chat.
+
 ## Known non-functional hooks
 
 * init
@@ -28,6 +32,6 @@ You can have more than one macro on a line, for the same hook, but you can't put
 
 Check the [Changelog](https://github.com/ardittristan/HookMacros/blob/master/CHANGELOG.md)
 
-- - -
+---
 
 *If you acidentally created a macro that locks you out of the game. You can fix it by holding the END key while logging into your world. This makes the module not run any macros.*

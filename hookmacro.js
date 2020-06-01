@@ -73,12 +73,12 @@ async function updateJournal() {
             // Check if line contains both an @Hook and @Macro entry
             if (ciIncludes(lineContent, "\@Hook\[") && ciIncludes(lineContent, "\@Macro\[")) {
                 // Extract hook name
-                var hook = lineContent.match(/(@Hook\[[a-z0-9]+\])/gi)[0].match(/(?<=\[)([a-z0-9]+)(?=\])+?/gi)[0];
+                var hook = lineContent.match(/(@Hook\[[^[]+\])/gi)[0].match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
                 if (hookArray[hook] === undefined) { hookArray[hook] = []; }
 
                 // Extract macro names, multiple possible
-                lineContent.match(/(@Macro\[[a-z0-9]+\])/gi).forEach(async unfiltredMacro => {
-                    var macro = unfiltredMacro.match(/(?<=\[)([a-z0-9]+)(?=\])+?/gi)[0];
+                lineContent.match(/(@Macro\[[^[]+\])/gi).forEach(async unfiltredMacro => {
+                    var macro = unfiltredMacro.match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
                     if (!(hookArray[hook].includes(macro))) {
                         // Push into array of processed macros
                         hookArray[hook].push(macro);
@@ -118,7 +118,7 @@ async function startHookListener(hook, macro) {
     // Added spam protection so there's less chance of infinite loops being created
     var lastRan = undefined;
     Hooks.on(hook, () => {
-        if ((lastRan === undefined || lastRan <= (Date.now() - 500)) && hookArray[hook].includes(macro)) {
+        if ((lastRan === undefined || lastRan <= (Date.now() - 1000)) && hookArray[hook].includes(macro)) {
             // Emergency stop
             if (emergency) { return; }
             console.log(`running macro: ${macro}, from hook: ${hook}`);
