@@ -1,11 +1,11 @@
 // Global variables
-var journal;
 var hookArray = { _: [] };
 var updating = false;
 var spamProtect = {};
 var init = false;
 var startup = true;
 var emergency = false;
+var journalAvailable = true;
 
 Hooks.once('init', async function () {
     // Init settings
@@ -21,8 +21,8 @@ Hooks.once('init', async function () {
     window.addEventListener('keydown', (event) => {
         if (event.keyCode === 35 && startup && (!emergency)) {
             emergency = true;
-            console.error("Emergency mode enabled. Hook macros stopped running.")
-            
+            console.error("Emergency mode enabled! Hook macros stopped running.");
+
         }
     });
 });
@@ -57,33 +57,37 @@ function Ready() {
  */
 async function updateJournal() {
     // Get the right journal
-    journal = game.journal.entities.filter(j => j.name === (game.settings.get("launchmacro", "journalName") || "Hook Macros"))[0];
+    var journal = game.journal.entities.filter(j => j.name === (game.settings.get("launchmacro", "journalName") || "Hook Macros"))[0];
+    if (journal == undefined) { journalAvailable = false; console.error("Journal not found!")}
 
-    /** @type {String[]} */
-    // Split journal by line
-    var journalLines = journal.data.content.split("\n");
-    journalLines.forEach(async lineContent => {
-        // Check if line contains both an @Hook and @Macro entry
-        if (ciIncludes(lineContent, "\@Hook\[") && ciIncludes(lineContent, "\@Macro\[")) {
-            // Extract hook name
-            var hook = lineContent.match(/(@Hook\[[a-z0-9]+\])/gi)[0].match(/(?<=\[)([a-z0-9]+)(?=\])+?/gi)[0];
-            if (hookArray[hook] === undefined) { hookArray[hook] = []; }
+    // For whatever reason using return crashes foundry, but using if it works great
+    if (journalAvailable) {
+        /** @type {String[]} */
+        // Split journal by line
+        var journalLines = journal.data.content.split("\n");
+        journalLines.forEach(async lineContent => {
+            // Check if line contains both an @Hook and @Macro entry
+            if (ciIncludes(lineContent, "\@Hook\[") && ciIncludes(lineContent, "\@Macro\[")) {
+                // Extract hook name
+                var hook = lineContent.match(/(@Hook\[[a-z0-9]+\])/gi)[0].match(/(?<=\[)([a-z0-9]+)(?=\])+?/gi)[0];
+                if (hookArray[hook] === undefined) { hookArray[hook] = []; }
 
-            // Extract macro names, multiple possible
-            lineContent.match(/(@Macro\[[a-z0-9]+\])/gi).forEach(async unfiltredMacro => {
-                var macro = unfiltredMacro.match(/(?<=\[)([a-z0-9]+)(?=\])+?/gi)[0];
-                if (!(hookArray[hook].includes(macro))) {
-                    // Push into array of processed macros
-                    hookArray[hook].push(macro);
-                    // Check exceptions
-                    if (hook.toUpperCase() != "ready".toUpperCase()) {
-                        console.log(`starting hook listener ${hook}: ${macro}`);
-                        startHookListener(hook, macro);
+                // Extract macro names, multiple possible
+                lineContent.match(/(@Macro\[[a-z0-9]+\])/gi).forEach(async unfiltredMacro => {
+                    var macro = unfiltredMacro.match(/(?<=\[)([a-z0-9]+)(?=\])+?/gi)[0];
+                    if (!(hookArray[hook].includes(macro))) {
+                        // Push into array of processed macros
+                        hookArray[hook].push(macro);
+                        // Check exceptions
+                        if (hook.toUpperCase() != "ready".toUpperCase()) {
+                            console.log(`starting hook listener ${hook}: ${macro}`);
+                            startHookListener(hook, macro);
+                        }
                     }
-                }
-            });
-        }
-    });
+                });
+            }
+        });
+    }
     updating = false;
     init = true;
 }

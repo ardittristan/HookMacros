@@ -2,7 +2,7 @@
 	"name": "launchmacro",
 	"title": "Hook Macros",
 	"description": "Launch macros from hooks",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"author": "ardittristan#0001",
 	"esmodules": ["hookmacro.js"],
 	 "socket": true,
