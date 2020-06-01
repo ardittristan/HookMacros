@@ -1,7 +1,6 @@
 // Global variables
 var hookArray = { _: [] };
 var updating = false;
-var spamProtect = {};
 var init = false;
 var startup = true;
 var emergency = false;
@@ -33,20 +32,22 @@ Hooks.once('ready', async function () {
     // Start 'ready' hook compability
     checkReady();
     // Start journal watcher
-    Hooks.on('createJournalEntry', () => { if (!updating) { updating = true; updateJournal(); } });
-    Hooks.on('updateJournalEntry', () => { if (!updating) { updating = true; updateJournal(); } });
-    Hooks.on('deleteJournalEntry', () => { if (!updating) { updating = true; updateJournal(); } });
+    Hooks.on('createJournalEntry', () => { if (!updating) { updating = true; updateJournal(); console.log("Updated journal"); } });
+    Hooks.on('updateJournalEntry', () => { if (!updating) { updating = true; updateJournal(); console.log("Updated journal"); } });
+    Hooks.on('deleteJournalEntry', () => { if (!updating) { updating = true; updateJournal(); console.log("Updated journal"); } });
 });
 
 /**
  * Runs when initialization of module is done
  */
 function Ready() {
-    sleep(30000).then(() => { startup = false; });
+    setTimeout(() => { startup = false; }, 30000);
     if (hookArray.ready != undefined) {
         hookArray.ready.forEach(macro => {
+            // Emergency stop
             if (emergency) { return; }
-            console.log(`running macro ready: ${macro}`);
+            console.log(`running macro ${macro} from hook: ready`);
+            // Run macro
             game.macros.filter(m => m.name === macro)[0].execute();
         });
     }
@@ -57,8 +58,11 @@ function Ready() {
  */
 async function updateJournal() {
     // Get the right journal
-    var journal = game.journal.entities.filter(j => j.name === (game.settings.get("launchmacro", "journalName") || "Hook Macros"))[0];
-    if (journal == undefined) { journalAvailable = false; console.error(`Journal ${game.settings.get("launchmacro", "journalName")} not found!`)}
+    const journal = game.journal.getName(game.settings.get("launchmacro", "journalName") || "Hook Macros");
+    if (journal == undefined) {
+        journalAvailable = false;
+        console.error(`Journal ${game.settings.get("launchmacro", "journalName")} not found!`);
+    }
 
     // For whatever reason using return crashes foundry, but using if it works great
     if (journalAvailable) {
@@ -80,7 +84,7 @@ async function updateJournal() {
                         hookArray[hook].push(macro);
                         // Check exceptions
                         if (hook.toUpperCase() != "ready".toUpperCase()) {
-                            console.log(`starting hook listener ${hook}: ${macro}`);
+                            console.log(`starting hook listener hook: ${hook}, macro: ${macro}`);
                             startHookListener(hook, macro);
                         }
                     }
@@ -112,42 +116,37 @@ function ciIncludes(string, includes) {
  */
 async function startHookListener(hook, macro) {
     // Added spam protection so there's less chance of infinite loops being created
-    spamProtect[macro] = false;
+    var lastRan = undefined;
     Hooks.on(hook, () => {
-        if ((!spamProtect[macro]) && hookArray[hook].includes(macro)) {
-            spamProtect[macro] = true;
+        if ((lastRan === undefined || lastRan <= (Date.now() - 500)) && hookArray[hook].includes(macro)) {
+            // Emergency stop
             if (emergency) { return; }
-            console.log(`running macro ${hook}: ${macro}`);
+            console.log(`running macro: ${macro}, from hook: ${hook}`);
+            // Run macro
             game.macros.filter(m => m.name === macro)[0].execute().then(async function () {
-                setTimeout(() => { spamProtect[macro] = false; }, 1000);
+                lastRan = Date.now();
             });
         }
     });
 }
-/**
- * Sleep function
- * @param  {} ms - Amount of miliseconds to sleep
- * @returns Promise
- */
-async function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
-}
+
 /**
  * Checks if initialization is done
  */
 async function checkReady() {
     // Add timeout for less load
     var timeout = false;
-    while (true) {
+    var running = true;
+    // If ready takes more than 15 seconds, skip
+    setTimeout(() => { if (!init) { running = false, console.error("Skipped ready compat"); } }, 15000);
+    while (running) {
         if (!timeout) {
             timeout = true;
             if (init) {
                 Ready();
                 return;
             }
-            sleep(500).then(() => timeout = false);
+            setTimeout(() => { timeout = false; }, 500);
         }
     }
 }
