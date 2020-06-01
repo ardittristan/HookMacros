@@ -24,6 +24,10 @@ You can have more than one macro on a line, for the same hook, but you can't put
 
 * init
 
+## Changelog
+
+Check the [Changelog](https://raw.githubusercontent.com/ardittristan/HookMacros/master/CHANGELOG.md)
+
 - - -
 
 *If you acidentally created a macro that locks you out of the game. You can fix it by holding the END key while logging into your world. This makes the module not run any macros.*

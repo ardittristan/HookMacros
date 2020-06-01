@@ -58,7 +58,7 @@ function Ready() {
 async function updateJournal() {
     // Get the right journal
     var journal = game.journal.entities.filter(j => j.name === (game.settings.get("launchmacro", "journalName") || "Hook Macros"))[0];
-    if (journal == undefined) { journalAvailable = false; console.error("Journal not found!")}
+    if (journal == undefined) { journalAvailable = false; console.error(`Journal ${game.settings.get("launchmacro", "journalName")} not found!`)}
 
     // For whatever reason using return crashes foundry, but using if it works great
     if (journalAvailable) {
