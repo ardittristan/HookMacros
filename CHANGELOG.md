@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 1.2.1
+
+* Added error handling.
+
 ## Version 1.2.0
 
 * Changed regex so macro names can be more than just letters and numbers.

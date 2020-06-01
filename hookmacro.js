@@ -46,9 +46,14 @@ function Ready() {
         hookArray.ready.forEach(macro => {
             // Emergency stop
             if (emergency) { return; }
-            console.log(`running macro ${macro} from hook: ready`);
             // Run macro
-            game.macros.filter(m => m.name === macro)[0].execute();
+            var filteredMacro = game.macros.filter(m => m.name === macro)[0];
+            if (filteredMacro === undefined) {
+                console.error(`macro "${macro}" doesn't exist`);
+            } else {
+                console.log(`running macro ${macro} from hook: ready`);
+                filteredMacro.execute();
+            }
         });
     }
 }
@@ -72,23 +77,27 @@ async function updateJournal() {
         journalLines.forEach(async lineContent => {
             // Check if line contains both an @Hook and @Macro entry
             if (ciIncludes(lineContent, "\@Hook\[") && ciIncludes(lineContent, "\@Macro\[")) {
-                // Extract hook name
-                var hook = lineContent.match(/(@Hook\[[^[]+\])/gi)[0].match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
-                if (hookArray[hook] === undefined) { hookArray[hook] = []; }
+                try {
+                    // Extract hook name
+                    var hook = lineContent.match(/(@Hook\[[^[]+\])/gi)[0].match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
+                    if (hookArray[hook] === undefined) { hookArray[hook] = []; }
 
-                // Extract macro names, multiple possible
-                lineContent.match(/(@Macro\[[^[]+\])/gi).forEach(async unfiltredMacro => {
-                    var macro = unfiltredMacro.match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
-                    if (!(hookArray[hook].includes(macro))) {
-                        // Push into array of processed macros
-                        hookArray[hook].push(macro);
-                        // Check exceptions
-                        if (hook.toUpperCase() != "ready".toUpperCase()) {
-                            console.log(`starting hook listener hook: ${hook}, macro: ${macro}`);
-                            startHookListener(hook, macro);
+                    // Extract macro names, multiple possible
+                    lineContent.match(/(@Macro\[[^[]+\])/gi).forEach(async unfiltredMacro => {
+                        var macro = unfiltredMacro.match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
+                        if (!(hookArray[hook].includes(macro))) {
+                            // Push into array of processed macros
+                            hookArray[hook].push(macro);
+                            // Check exceptions
+                            if (hook.toUpperCase() != "ready".toUpperCase()) {
+                                console.log(`starting hook listener hook: ${hook}, macro: ${macro}`);
+                                startHookListener(hook, macro);
+                            }
                         }
-                    }
-                });
+                    });
+                } catch (err) {
+                    console.error("Something went wrong while trying to read the journal.");
+                }
             }
         });
     }
@@ -121,11 +130,17 @@ async function startHookListener(hook, macro) {
         if ((lastRan === undefined || lastRan <= (Date.now() - 1000)) && hookArray[hook].includes(macro)) {
             // Emergency stop
             if (emergency) { return; }
-            console.log(`running macro: ${macro}, from hook: ${hook}`);
+
             // Run macro
-            game.macros.filter(m => m.name === macro)[0].execute().then(async function () {
-                lastRan = Date.now();
-            });
+            var filteredMacro = game.macros.filter(m => m.name === macro)[0];
+            if (filteredMacro === undefined) {
+                console.error(`macro "${macro}" doesn't exist`);
+            } else {
+                console.log(`running macro: ${macro}, from hook: ${hook}`);
+                filteredMacro.execute().then(async function () {
+                    lastRan = Date.now();
+                });
+            }
         }
     });
 }
