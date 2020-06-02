@@ -7,7 +7,7 @@
 	"esmodules": ["hookmacro.js"],
 	 "socket": true,
     "url": "https://github.com/ardittristan/HookMacros/tree/master",
-    "manifest": "https://raw.githubusercontent.com/ardittristan/HookMacros/master/module.json",
+    "manifest": "https://raw.githubusercontent.com/ardittristan/HookMacros/v1.2.0/module.json",
     "download": "https://github.com/ardittristan/HookMacros/archive/v1.2.0.zip",
 	"minimumCoreVersion": "0.5.5",
 	"compatibleCoreVersion": "0.6.0"
