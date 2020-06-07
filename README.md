@@ -28,6 +28,10 @@ Don't create macros that run from the chat hook *and* create chat messages that 
 
 * init
 
+## Known issues
+
+* Firefox 77 doesn't support regex lookbehinds and doesn't function as such, please use Firefox Beta 78, or wait until June 30th 2020 for it to release.
+
 ## Changelog
 
 Check the [Changelog](https://github.com/ardittristan/HookMacros/blob/master/CHANGELOG.md)
