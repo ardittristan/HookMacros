@@ -20,6 +20,8 @@ The general input method is:
 
 You can have more than one macro on a line, for the same hook, but you can't put multiple hooks on the same line.
 
+*If you don't know what hook you need, [The Furnace](https://github.com/kakaroto/fvtt-module-furnace) has a handy option that allows you to enable debugging. Which will show hooks in the console when they are called. Open the console with `ctrl + shift + i` or `F12`*
+
 ### Things to watch out for
 
 Don't create macros that run from the chat hook *and* create chat messages that take more than 1 seconds to output to chat.
