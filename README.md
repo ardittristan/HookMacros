@@ -1,4 +1,4 @@
-![GitHub Releases](https://img.shields.io/github/downloads/ardittristan/HookMacros/latest/total)
+![GitHub All Releases](https://img.shields.io/github/downloads/ardittristan/HookMacros/total)
 
 # VTT Hook Macros
 
