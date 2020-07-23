@@ -1,3 +1,5 @@
+![GitHub Releases](https://img.shields.io/github/downloads/ardittristan/HookMacros/latest/total)
+
 # VTT Hook Macros
 
 This Module allows you to have macros run when hooks broadcast.
