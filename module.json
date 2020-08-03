@@ -8,7 +8,7 @@
 	 "socket": true,
     "url": "https://github.com/ardittristan/HookMacros/tree/master",
     "manifest": "https://raw.githubusercontent.com/ardittristan/HookMacros/master/module.json",
-    "download": "https://github.com/ardittristan/HookMacros/releases/download/latest/hook-macros.zip",
+    "download": "https://github.com/ardittristan/HookMacros/releases/latest/download/hook-macros.zip",
 	"minimumCoreVersion": "0.5.5",
 	"compatibleCoreVersion": "0.6.0"
 }
