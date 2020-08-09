@@ -20,7 +20,10 @@ The general input method is:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The hooks and macro names are case sensitive.
 
-You can have more than one macro on a line, for the same hook, but you can't put multiple hooks on the same line.
+~~You can have more than one macro on a line, for the same hook~~, but you can't put multiple hooks on the same line.  
+*ᵐᵘˡᵗⁱᵖˡᵉ ʰᵒᵒᵏˢ ᵒⁿ ᵒⁿᵉ ˡⁱⁿᵉ ᶜᵃⁿ ᶜᵃᵘˢᵉ ʲᵒᵘʳⁿᵃˡ ᶜᵒʳʳᵘᵖᵗⁱᵒⁿ*
+
+*Optionally, if you type @Macro[`macro name`]\(arg1,arg2 ,arg3) you can use args from [The Furnace](https://github.com/kakaroto/fvtt-module-furnace)*
 
 *If you don't know what hook you need, [The Furnace](https://github.com/kakaroto/fvtt-module-furnace) has a handy option that allows you to enable debugging. Which will show hooks in the console when they are called. Open the console with `ctrl + shift + i` or `F12`*
 

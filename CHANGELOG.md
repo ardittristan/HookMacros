@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 1.3.0
+
+* Add arguments for The Forge macros.
+
 ## Version 1.2.1
 
 * Added error handling.

@@ -1,10 +1,11 @@
 // Global variables
-var hookArray = { _: [] };
-var updating = false;
-var init = false;
-var startup = true;
-var emergency = false;
-var journalAvailable = true;
+let hookArray = { _: [] };
+let readyHookArray = [];
+let updating = false;
+let init = false;
+let startup = true;
+let emergency = false;
+let journalAvailable = true;
 
 Hooks.once('init', async function () {
     // Init settings
@@ -42,17 +43,17 @@ Hooks.once('ready', async function () {
  */
 function Ready() {
     setTimeout(() => { startup = false; }, 30000);
-    if (hookArray.ready != undefined) {
-        hookArray.ready.forEach(macro => {
+    if (readyHookArray.length !== 0) {
+        readyHookArray.forEach(([macro, args]) => {
             // Emergency stop
             if (emergency) { return; }
             // Run macro
-            var filteredMacro = game.macros.filter(m => m.name === macro)[0];
+            let filteredMacro = game.macros.filter(m => m.name === macro)[0];
             if (filteredMacro === undefined) {
                 console.error(`macro "${macro}" doesn't exist`);
             } else {
                 console.log(`running macro ${macro} from hook: ready`);
-                filteredMacro.execute();
+                filteredMacro.execute(...args);
             }
         });
     }
@@ -73,25 +74,37 @@ async function updateJournal() {
     if (journalAvailable) {
         /** @type {String[]} */
         // Split journal by line
-        var journalLines = journal.data.content.split("\n");
+        let journalLines = journal.data.content.split("\n");
         journalLines.forEach(async lineContent => {
             // Check if line contains both an @Hook and @Macro entry
             if (ciIncludes(lineContent, "\@Hook\[") && ciIncludes(lineContent, "\@Macro\[")) {
                 try {
+                    let isReadyHook = false;
                     // Extract hook name
-                    var hook = lineContent.match(/(@Hook\[[^[]+\])/gi)[0].match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
+                    let hook = lineContent.match(/(@Hook\[[^[]+\])/gi)[0].match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
+                    if (hook.toUpperCase() === "READY") {isReadyHook = true}
                     if (hookArray[hook] === undefined) { hookArray[hook] = []; }
 
                     // Extract macro names, multiple possible
-                    lineContent.match(/(@Macro\[[^[]+\])/gi).forEach(async unfiltredMacro => {
-                        var macro = unfiltredMacro.match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
-                        if (!(hookArray[hook].includes(macro))) {
+                    lineContent.match(/(@Macro\[[^\[]+\](\([^\)]*\))?)/gi).forEach(async unfiltredMacro => {
+                        let macro = unfiltredMacro.match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
+                        let argsRawArr = unfiltredMacro.match(/(?<=\()([^(]+)(?=\))+?/gi)
+                        let argsRaw = "";
+                        let args = [];
+                        if (argsRawArr !== null) {
+                            argsRaw = argsRawArr[0]
+                            args = argsRaw.split(",").map(x => x.trim())
+                        }
+                        if (!(hookArray[hook].includes(macro + argsRaw))) {
                             // Push into array of processed macros
-                            hookArray[hook].push(macro);
+                            hookArray[hook].push(macro + argsRaw);
+                            if (isReadyHook) {
+                                readyHookArray.push([macro, args])
+                            }
                             // Check exceptions
                             if (hook.toUpperCase() != "ready".toUpperCase()) {
                                 console.log(`starting hook listener hook: ${hook}, macro: ${macro}`);
-                                startHookListener(hook, macro);
+                                startHookListener(hook, macro, args, argsRaw);
                             }
                         }
                     });
@@ -122,22 +135,23 @@ function ciIncludes(string, includes) {
  * Starts a hook listener
  * @param  {String} hook - Hook to listen to
  * @param  {String} macro - Macro to run
+ * @param  {Array} args - extra macro options
  */
-async function startHookListener(hook, macro) {
+async function startHookListener(hook, macro, args, argsRaw = "") {
     // Added spam protection so there's less chance of infinite loops being created
-    var lastRan = undefined;
+    let lastRan = undefined;
     Hooks.on(hook, () => {
-        if ((lastRan === undefined || lastRan <= (Date.now() - 1000)) && hookArray[hook].includes(macro)) {
+        if ((lastRan === undefined || lastRan <= (Date.now() - 1000)) && hookArray[hook].includes(macro + argsRaw)) {
             // Emergency stop
             if (emergency) { return; }
 
             // Run macro
-            var filteredMacro = game.macros.filter(m => m.name === macro)[0];
+            let filteredMacro = game.macros.filter(m => m.name === macro)[0];
             if (filteredMacro === undefined) {
                 console.error(`macro "${macro}" doesn't exist`);
             } else {
                 console.log(`running macro: ${macro}, from hook: ${hook}`);
-                filteredMacro.execute().then(async function () {
+                filteredMacro.execute(...args).then(async function () {
                     lastRan = Date.now();
                 });
             }
@@ -150,8 +164,8 @@ async function startHookListener(hook, macro) {
  */
 async function checkReady() {
     // Add timeout for less load
-    var timeout = false;
-    var running = true;
+    let timeout = false;
+    let running = true;
     // If ready takes more than 15 seconds, skip
     setTimeout(() => { if (!init) { running = false, console.error("Skipped ready compat"); } }, 15000);
     while (running) {
