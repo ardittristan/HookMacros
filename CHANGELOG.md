@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 1.3.1
+
+* Push compatible core version.
+
 ## Version 1.3.0
 
 * Add arguments for The Forge macros.
