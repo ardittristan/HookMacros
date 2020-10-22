@@ -3,7 +3,9 @@
 
 # VTT Hook Macros
 
-This Module allows you to have macros run when hooks broadcast.
+*Advanced Scripting Module*
+
+This module allows you to set macros to run when a particular Hook is sent by Foundry VTT. The hook that acts as a trigger and which macro to use can be configured using a Journal Entry.
 
 ## Installation
 
