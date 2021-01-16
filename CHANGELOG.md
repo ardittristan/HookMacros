@@ -1,5 +1,10 @@
 # Patch Notes
 
+## Version 1.3.2
+
+* Fix some errors
+* Code cleanup
+
 ## Version 1.3.1
 
 * Push compatible core version.
