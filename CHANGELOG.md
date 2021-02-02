@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 1.3.3
+
+* Pass Hook args to macro. | Thanks @hmqgg
+
 ## Version 1.3.2
 
 * Fix some errors
