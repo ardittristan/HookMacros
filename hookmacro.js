@@ -171,7 +171,7 @@ function ciIncludes(string, includes) {
 async function startHookListener(hook, macro, args, argsRaw = "") {
   // Added spam protection so there's less chance of infinite loops being created
   let lastRan = undefined;
-  Hooks.on(hook, () => {
+  Hooks.on(hook, (...hookArgs) => {
     if ((lastRan === undefined || lastRan <= Date.now() - 1000) && hookArray[hook].includes(macro + argsRaw)) {
       // Emergency stop
       if (emergency) {
@@ -185,7 +185,7 @@ async function startHookListener(hook, macro, args, argsRaw = "") {
       } else {
         console.log(`running macro: ${macro}, from hook: ${hook}`);
         try {
-          filteredMacro.execute(...args).then(async function () {
+          filteredMacro.execute(...args, hookArgs).then(async function () {
             lastRan = Date.now();
           });
         } catch {}
