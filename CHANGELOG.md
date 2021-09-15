@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 2.0.0
+
+* No longer uses journals for settings!
+
 ## Version 1.3.3
 
 * Pass Hook args to macro. | Thanks @hmqgg

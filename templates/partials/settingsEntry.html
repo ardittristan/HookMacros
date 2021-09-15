@@ -1,0 +1,13 @@
+<div class="settingsEntry" id="{{this.id}}-Entry">
+  <div class="buttons">
+    <button type="button" class="deleteButton" onclick="this.closest('.settingsEntry').remove()"><i class="far fa-trash-alt"></i></button>
+  </div>
+
+  <div class="fields">
+    <input type="text" placeholder="Hook name*" id="{{this.id}}-Hook" name="{{this.id}}-Hook" required value="{{this.hook}}" />
+
+    <input type="text" placeholder="Macro name*" id="{{this.id}}-Macro" name="{{this.id}}-Macro" required value="{{this.macro}}" />
+
+    <input type="text" placeholder="Macro arguments" id="{{this.id}}-Args" name="{{this.id}}-Args" value="{{this.args}}" />
+  </div>
+</div>

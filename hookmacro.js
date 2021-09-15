@@ -1,165 +1,89 @@
+import legacy from "./legacy.js";
+
 // Global variables
-let hookArray = { _: [] };
-let readyHookArray = [];
-let updating = false;
-let init = false;
+export let hookArray = { _: [] };
+export let init = false;
+/** @type {Handlebars.Template} */
+let settingsEntry;
 let startup = true;
-let emergency = false;
-let journalAvailable = true;
+export let emergency = false;
 
 Hooks.once("init", async function () {
-  // Init settings
-  game.settings.register("launchmacro", "journalName", {
-    name: "Name of the macro journal to use",
-    hint: "This is the name of the journal you'll put your macros in. More info in the README.",
-    scope: "world",
-    config: true,
-    default: "Hook Macros",
-    type: String,
-  });
-
   window.addEventListener("keydown", (event) => {
-    if (event.keyCode === 35 && startup && !emergency) {
+    if (event.key === "End" && startup && !emergency) {
       emergency = true;
       console.error("Emergency mode enabled! Hook macros stopped running.");
     }
   });
-});
 
-Hooks.once("ready", async function () {
-  // Init array of already existing macros
-  if (!updating) {
-    updating = true;
-    updateJournal();
-  }
-  // Start 'ready' hook compability
-  checkReady();
-  // Start journal watcher
-  Hooks.on("createJournalEntry", () => {
-    if (!updating) {
-      updating = true;
-      updateJournal();
-      console.log("Updated journal");
-    }
+  (async () => {
+    settingsEntry = await getTemplate("modules/launchmacro/templates/partials/settingsEntry.html");
+  })();
+
+  game.settings.register("launchmacro", "useLegacy", {
+    name: "hookMacro.legacy",
+    hint: "hookMacro.legacyLabel",
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
   });
-  Hooks.on("updateJournalEntry", () => {
-    if (!updating) {
-      updating = true;
-      updateJournal();
-      console.log("Updated journal");
-    }
+
+  game.settings.register("launchmacro", "savedHooks", {
+    scope: "world",
+    config: false,
+    default: [],
+    type: Array,
   });
-  Hooks.on("deleteJournalEntry", () => {
-    if (!updating) {
-      updating = true;
-      updateJournal();
-      console.log("Updated journal");
-    }
+
+  game.settings.register("launchmacro", "localSavedHooks", {
+    scope: "client",
+    config: false,
+    default: [],
+    type: Array,
   });
+
+  game.settings.registerMenu("launchmacro", "settingsMenu", {
+    name: "hookMacro.global",
+    label: "hookMacro.label",
+    type: HookSettingsApplication,
+    restricted: true,
+  });
+
+  game.settings.registerMenu("launchmacro", "localSettingsMenu", {
+    name: "hookMacro.local",
+    label: "hookMacro.label",
+    type: LocalHookSettingsApplication,
+    restricted: false,
+  });
+
+  if (game.settings.get("launchmacro", "useLegacy")) legacy();
+
+  initHookListeners();
 });
 
 /**
- * Runs when initialization of module is done
+ * inits hooks
  */
-function Ready() {
-  setTimeout(() => {
-    startup = false;
-  }, 30000);
-  if (readyHookArray.length !== 0) {
-    readyHookArray.forEach(([macro, args]) => {
-      // Emergency stop
-      if (emergency) {
-        return;
-      }
-      // Run macro
-      let filteredMacro = game.macros.filter((m) => m.name === macro)[0];
-      if (filteredMacro === undefined) {
-        console.error(`macro "${macro}" doesn't exist`);
-      } else {
-        console.log(`running macro ${macro} from hook: ready`);
-        filteredMacro.execute(...args);
-      }
-    });
-  }
-}
+function initHookListeners(type = "savedHooks") {
+  /** @type {[{id: string, hook: string, macro: string, args: string}]} */
+  let hooks = game.data.version.includes("0.7.") //
+    ? game.settings.get("launchmacro", type)?.[0] || []
+    : game.settings.get("launchmacro", type) || [];
 
-/**
- * Gets run at start and when a journal gets updated
- */
-async function updateJournal() {
-  // Get the right journal
-  const journal = game.journal.getName(game.settings.get("launchmacro", "journalName") || "Hook Macros");
-  if (journal == undefined) {
-    journalAvailable = false;
-    console.error(`Journal ${game.settings.get("launchmacro", "journalName")} not found!`);
-  }
+  hooks.forEach((hook) => {
+    if (hookArray[hook.hook] === undefined) hookArray[hook.hook] = [];
 
-  if (!journalAvailable) {
-    updating = false;
-    init = true;
-    return;
-  }
+    let args = hook.args.split(",");
 
-  /** @type {String[]} */
-  // Split journal by line
-  let journalLines = journal.data.content.split("\n");
-  journalLines.forEach(async (lineContent) => {
-    // Check if line contains both an @Hook and @Macro entry
-    if (ciIncludes(lineContent, "@Hook[") && ciIncludes(lineContent, "@Macro[")) {
-      try {
-        let isReadyHook = false;
-        // Extract hook name
-        let hook = lineContent.match(/(@Hook\[[^[]+\])/gi)[0].match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
-        if (hook.toUpperCase() === "READY") {
-          isReadyHook = true;
-        }
-        if (hookArray[hook] === undefined) {
-          hookArray[hook] = [];
-        }
-
-        // Extract macro names, multiple possible
-        lineContent.match(/(@Macro\[[^\[]+\](\([^\)]*\))?)/gi).forEach(async (unfiltredMacro) => {
-          let macro = unfiltredMacro.match(/(?<=\[)([^[]+)(?=\])+?/gi)[0];
-          let argsRawArr = unfiltredMacro.match(/(?<=\()([^(]+)(?=\))+?/gi);
-          let argsRaw = "";
-          let args = [];
-          if (argsRawArr !== null) {
-            argsRaw = argsRawArr[0];
-            args = argsRaw.split(",").map((x) => x.trim());
-          }
-          if (!hookArray[hook].includes(macro + argsRaw)) {
-            // Push into array of processed macros
-            hookArray[hook].push(macro + argsRaw);
-            if (isReadyHook) {
-              readyHookArray.push([macro, args]);
-            }
-            // Check exceptions
-            if (hook.toUpperCase() != "ready".toUpperCase()) {
-              console.log(`starting hook listener hook: ${hook}, macro: ${macro}`);
-              startHookListener(hook, macro, args, argsRaw);
-            }
-          }
-        });
-      } catch (err) {
-        console.error("Something went wrong while trying to read the journal.");
-      }
+    if (!hookArray[hook.hook].includes(hook.macro + hook.args)) {
+      hookArray[hook.hook].push(hook.macro + hook.args);
+      console.log(`Hook Macros | starting hook listener hook: ${hook.hook}, macro: ${hook.macro}`);
+      startHookListener(hook.hook, hook.macro, args, hook.args);
     }
   });
-  updating = false;
+
   init = true;
-}
-
-/**
- * Includes case insensitive
- * @param  {String} string - Input string
- * @param  {String} includes - Search string
- */
-function ciIncludes(string, includes) {
-  if (string.toUpperCase().includes(includes.toUpperCase())) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 /**
@@ -168,7 +92,7 @@ function ciIncludes(string, includes) {
  * @param  {String} macro - Macro to run
  * @param  {Array} args - extra macro options
  */
-async function startHookListener(hook, macro, args, argsRaw = "") {
+export async function startHookListener(hook, macro, args, argsRaw = "") {
   // Added spam protection so there's less chance of infinite loops being created
   let lastRan = undefined;
   Hooks.on(hook, (...hookArgs) => {
@@ -181,9 +105,9 @@ async function startHookListener(hook, macro, args, argsRaw = "") {
       // Run macro
       let filteredMacro = game.macros.filter((m) => m.name === macro)[0];
       if (filteredMacro === undefined) {
-        console.error(`macro "${macro}" doesn't exist`);
+        console.error(`Hook Macros | macro "${macro}" doesn't exist`);
       } else {
-        console.log(`running macro: ${macro}, from hook: ${hook}`);
+        console.log(`Hook Macros | running macro: ${macro}, from hook: ${hook}`);
         try {
           filteredMacro.execute(...args, hookArgs).then(async function () {
             lastRan = Date.now();
@@ -194,29 +118,119 @@ async function startHookListener(hook, macro, args, argsRaw = "") {
   });
 }
 
-/**
- * Checks if initialization is done
- */
-async function checkReady() {
-  // Add timeout for less load
-  let timeout = false;
-  let running = true;
-  // If ready takes more than 15 seconds, skip
-  setTimeout(() => {
-    if (!init) {
-      (running = false), console.error("Skipped ready compat");
-    }
-  }, 15000);
-  while (running) {
-    if (!timeout) {
-      timeout = true;
-      if (init) {
-        Ready();
-        return;
+class HookSettingsApplication extends FormApplication {
+  constructor(object, options) {
+    super(object, options);
+
+    this.settingsIdentifier = "savedHooks";
+  }
+
+  static get appType() {
+    return "global";
+  }
+
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, {
+      id: "macro-hooks-settings",
+      classes: ["sheet"],
+      template: "modules/launchmacro/templates/settingsPopup.html",
+      resizable: true,
+      minimizable: false,
+      title: "hookMacro." + this.appType,
+    });
+  }
+
+  async getData(options) {
+    const data = super.getData(options);
+    data.entries = game.data.version.includes("0.7.") //
+      ? game.settings.get("launchmacro", this.settingsIdentifier)?.[0] || []
+      : game.settings.get("launchmacro", this.settingsIdentifier) || [];
+
+    return data;
+  }
+
+  /**
+   * @param {JQuery} html
+   */
+  activateListeners(html) {
+    super.activateListeners(html);
+
+    // cancel button
+    html.find("button#cancelButton").on("click", () => {
+      this.close();
+    });
+
+    // add entry button logic
+    html.find("button#addButton").on("click", () => {
+      this.addEntry(html);
+    });
+
+    html.find("#newEntry input").on("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        html.find("#newEntry #addButton").trigger("click");
       }
-      setTimeout(() => {
-        timeout = false;
-      }, 500);
-    }
+    });
+  }
+
+  /**
+   * @param {JQuery} html
+   */
+  addEntry(html) {
+    let hook = html.find("#newEntry-Hook")[0]?.value || "";
+    let macro = html.find("#newEntry-Macro")[0]?.value || "";
+    let args = html.find("#newEntry-Args")[0]?.value || "";
+    let id = randomID();
+
+    let compiledTemplate = settingsEntry({
+      hook,
+      macro,
+      args,
+      id,
+    });
+
+    html.find("#entryList").append(compiledTemplate);
+
+    html.find("#newEntry-Hook")[0].value = "";
+    html.find("#newEntry-Macro")[0].value = "";
+    html.find("#newEntry-Args")[0].value = "";
+  }
+
+  /**
+   * @param {Event} event
+   * @param {Object} formData
+   */
+  async _updateObject(event, formData) {
+    let ids = [];
+    let settingsArray = [];
+
+    Object.keys(formData).forEach((key) => {
+      const id = key.split("-")[0];
+      if (!ids.includes(id)) ids.push(id);
+    });
+
+    ids.forEach((id) => {
+      settingsArray.push({
+        id,
+        hook: formData[id + "-Hook"],
+        macro: formData[id + "-Macro"],
+        args: formData[id + "-Args"],
+      });
+    });
+
+    game.settings.set("launchmacro", this.settingsIdentifier, settingsArray);
+  }
+}
+
+class LocalHookSettingsApplication extends HookSettingsApplication {
+  constructor(object, options) {
+    super(object, options);
+
+    this.settingsIdentifier = "localSavedHooks";
+  }
+
+  static get appType() {
+    return "local";
   }
 }

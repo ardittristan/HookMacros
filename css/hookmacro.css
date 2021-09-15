@@ -1,0 +1,108 @@
+#macro-hooks-settings {
+  min-height: 216px;
+  min-width: 400px;
+}
+
+#macro-hooks-settings .header-button.help .far {
+  margin-right: 3px;
+}
+
+#macro-hooks-settings .buttonContainer {
+  display: flex;
+  position: absolute;
+  bottom: 8px;
+  width: calc(100% - 16px);
+  background: url(/ui/parchment.jpg) repeat;
+}
+
+#macro-hooks-settings .settingsContainer #newEntry,
+#macro-hooks-settings .settingsContainer #entryList .settingsEntry {
+  border: solid 1px #00000045;
+  background: #00000026;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+#macro-hooks-settings .settingsContainer #entryList {
+  flex-direction: column;
+}
+
+#macro-hooks-settings .settingsContainer #newEntry {
+  bottom: 46px;
+  width: calc(100% - 16px);
+  position: absolute;
+  background: url(/ui/parchment.jpg) repeat;
+}
+
+#macro-hooks-settings .settingsContainer .divider {
+  width: calc(100% + 16px);
+  height: 156px;
+  pointer-events: none;
+  margin-top: 4px;
+  border-top: 1px solid #7a7971;
+  margin-left: -8px;
+  margin-right: 8px;
+}
+
+#macro-hooks-settings .settingsContainer > div,
+#macro-hooks-settings .settingsContainer > div .settingsEntry {
+  display: flex;
+  width: 100%;
+}
+
+#macro-hooks-settings .settingsContainer .fields {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#macro-hooks-settings .settingsContainer .fields input {
+  margin-bottom: 2px;
+}
+
+#macro-hooks-settings .settingsContainer .fields > div {
+  display: flex;
+  padding-right: 2px;
+}
+
+#macro-hooks-settings .settingsContainer .fields > div input:not(:last-child) {
+  margin-right: 4px;
+}
+
+#macro-hooks-settings .settingsContainer .settingsEntry:not(:last-child) {
+  margin-bottom: 2px;
+}
+
+#macro-hooks-settings .settingsContainer .buttons {
+  border-right: solid 1px #0000002e;
+  padding-right: 2px;
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  width: 31px;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+#macro-hooks-settings .settingsContainer .buttons button {
+  height: 26px;
+  width: 26px;
+  line-height: 22px;
+  font-family: "Modesto Condensed", "Palatino Linotype", serif;
+  font-weight: bold;
+}
+
+#macro-hooks-settings .settingsContainer .buttons #addButton {
+  font-size: x-large;
+}
+
+#macro-hooks-settings .settingsContainer .buttons .deleteButton {
+  top: 0;
+  position: absolute;
+}
+
+#macro-hooks-settings .settingsContainer .buttons .deleteButton .fa-trash-alt {
+  margin-left: -1px;
+  margin-right: 0;
+}

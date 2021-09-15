@@ -1,0 +1,30 @@
+<form>
+  <div class="settingsContainer">
+    <!-- prettier-ignore -->
+    <div id="entryList">
+      {{#each entries}}
+        {{> modules/launchmacro/templates/partials/settingsEntry.html this}}
+      {{/each}}
+    </div>
+
+    <div class="divider"></div>
+
+    <div id="newEntry">
+      <div class="buttons">
+        <button type="button" id="addButton">+</button>
+      </div>
+
+      <div class="fields">
+        <input type="text" placeholder="Hook name*" id="newEntry-Hook" />
+
+        <input type="text" placeholder="Macro name*" id="newEntry-Macro" />
+
+        <input type="text" placeholder="Macro args" id="newEntry-Args" />
+      </div>
+    </div>
+  </div>
+  <div class="buttonContainer">
+    <button type="submit">Save</button>
+    <button id="cancelButton" type="button">Cancel</button>
+  </div>
+</form>

@@ -17,7 +17,13 @@ jobs:
       shell: bash
       id: get-version
       run: echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
-    - run: zip -r ./hook-macros.zip module.json hookmacro.js                                      # Add folders/files here
+    - name: Substitute Manifest and Download Links For Versioned Ones
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: 'module.json'
+      env:
+        download: https://github.com/${{github.repository}}/releases/download/${{steps.get-version.outputs.version}}/hook-macros.zip
+    - run: zip -r ./hook-macros.zip module.json templates/ lang/ css/ hookmacro.js                                      # Add folders/files here
     - name: Create Release                                # Create an additional release for this version
       id: create_versioned_release
       uses: ncipollo/release-action@v1
@@ -41,3 +47,8 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./hook-macros.zip'                                                                 # don't forget to rename module zip thing
         tag: latest
+    - name: Invoke push script
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: Push To Deploy
+        token: ${{ secrets.PERSONAL_TOKEN }}
