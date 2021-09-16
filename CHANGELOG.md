@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 2.0.1
+
+* Hotfix
+
 ## Version 2.0.0
 
 * No longer uses journals for settings!
