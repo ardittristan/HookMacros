@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 2.0.2
+
+* Fix no args passing an empty string
+
 ## Version 2.0.1
 
 * Hotfix

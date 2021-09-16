@@ -75,6 +75,7 @@ function initHookListeners(type = "savedHooks") {
     if (hookArray[hook.hook] === undefined) hookArray[hook.hook] = [];
 
     let args = hook.args.split(",");
+    if (args.length === 1 && !args[0].length) args = [];
 
     if (!hookArray[hook.hook].includes(hook.macro + hook.args)) {
       hookArray[hook.hook].push(hook.macro + hook.args);
@@ -109,7 +110,7 @@ export async function startHookListener(hook, macro, args, argsRaw = "") {
       } else {
         console.log(`Hook Macros | running macro: ${macro}, from hook: ${hook}`);
         try {
-          filteredMacro.execute(...args, hookArgs).then(async function () {
+          filteredMacro.execute(...args, ...hookArgs).then(async function () {
             lastRan = Date.now();
           });
         } catch {}
