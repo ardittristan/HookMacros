@@ -19,8 +19,8 @@ Hooks.once("init", async function () {
   window.addEventListener("keydown", emergencyEvent);
 
   setTimeout(() => {
-    window.removeEventListener(emergencyEvent);
-  }, 3600);
+    window.removeEventListener("keydown", emergencyEvent);
+  }, 60000);
 
   (async () => {
     settingsEntry = await getTemplate("modules/launchmacro/templates/partials/settingsEntry.html");

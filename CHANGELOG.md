@@ -1,5 +1,9 @@
 # Patch Notes
 
+## Version 2.0.4
+
+* Hotfix
+
 ## Version 2.0.3
 
 * Fix local hooks not being ran
