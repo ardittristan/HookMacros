@@ -1,5 +1,10 @@
 # Patch Notes
 
+## Version 2.0.3
+
+* Fix local hooks not being ran
+* Add 1 minute cutoff to emergency key listener
+
 ## Version 2.0.2
 
 * Fix no args passing an empty string

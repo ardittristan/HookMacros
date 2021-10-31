@@ -8,13 +8,19 @@ let settingsEntry;
 let startup = true;
 export let emergency = false;
 
+function emergencyEvent(event) {
+  if (event.key === "End" && startup && !emergency) {
+    emergency = true;
+    console.error("Emergency mode enabled! Hook macros stopped running.");
+  }
+}
+
 Hooks.once("init", async function () {
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "End" && startup && !emergency) {
-      emergency = true;
-      console.error("Emergency mode enabled! Hook macros stopped running.");
-    }
-  });
+  window.addEventListener("keydown", emergencyEvent);
+
+  setTimeout(() => {
+    window.removeEventListener(emergencyEvent);
+  }, 3600);
 
   (async () => {
     settingsEntry = await getTemplate("modules/launchmacro/templates/partials/settingsEntry.html");
@@ -60,6 +66,7 @@ Hooks.once("init", async function () {
   if (game.settings.get("launchmacro", "useLegacy")) legacy();
 
   initHookListeners();
+  initHookListeners("localSavedHooks");
 });
 
 /**
