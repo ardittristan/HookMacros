@@ -1,30 +1,28 @@
 {
-  "name": "launchmacro",
   "title": "Hook Macros",
   "description": "Launch macros from hooks",
-  "author": "ardittristan#0001",
-  "authors": [],
   "url": "https://github.com/ardittristan/HookMacros/tree/master",
-  "flags": {},
-  "version": "2.0.4",
-  "minimumCoreVersion": "0.5.5",
-  "compatibleCoreVersion": "0.8.9",
-  "scripts": [],
-  "esmodules": ["hookmacro.js"],
-  "styles": ["./css/hookmacro.css"],
+  "version": "2.1.0",
+  "esmodules": [
+    "hookmacro.js"
+  ],
+  "styles": [
+    "css/hookmacro.css"
+  ],
   "languages": [
     {
       "lang": "en",
       "name": "English",
-      "path": "lang/en.json"
+      "path": "lang/en.json",
+      "flags": {}
     }
   ],
-  "packs": [],
-  "system": [],
-  "dependencies": [],
   "socket": true,
   "manifest": "https://raw.githubusercontent.com/ardittristan/HookMacros/master/module.json",
   "download": "https://github.com/ardittristan/HookMacros/releases/latest/download/hook-macros.zip",
-  "protected": false,
-  "coreTranslation": false
+  "id": "launchmacro",
+  "compatibility": {
+    "minimum": "0.8.0",
+    "verified": 10
+  }
 }

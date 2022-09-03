@@ -74,9 +74,7 @@ Hooks.once("init", async function () {
  */
 function initHookListeners(type = "savedHooks") {
   /** @type {[{id: string, hook: string, macro: string, args: string}]} */
-  let hooks = game.data.version.includes("0.7.") //
-    ? game.settings.get("launchmacro", type)?.[0] || []
-    : game.settings.get("launchmacro", type) || [];
+  let hooks = game.settings.get("launchmacro", type) || [];
 
   hooks.forEach((hook) => {
     if (hookArray[hook.hook] === undefined) hookArray[hook.hook] = [];
