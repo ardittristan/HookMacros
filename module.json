@@ -2,7 +2,7 @@
   "title": "Hook Macros",
   "description": "Launch macros from hooks",
   "url": "https://github.com/ardittristan/HookMacros/tree/master",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "esmodules": [
     "hookmacro.js"
   ],
@@ -23,6 +23,6 @@
   "id": "launchmacro",
   "compatibility": {
     "minimum": "0.8.0",
-    "verified": 10
+    "verified": "10"
   }
 }

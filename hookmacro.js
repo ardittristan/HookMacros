@@ -148,9 +148,7 @@ class HookSettingsApplication extends FormApplication {
 
   async getData(options) {
     const data = super.getData(options);
-    data.entries = game.data.version.includes("0.7.") //
-      ? game.settings.get("launchmacro", this.settingsIdentifier)?.[0] || []
-      : game.settings.get("launchmacro", this.settingsIdentifier) || [];
+    data.entries = game.settings.get("launchmacro", this.settingsIdentifier) || [];
 
     return data;
   }
