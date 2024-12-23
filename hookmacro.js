@@ -115,7 +115,7 @@ export async function startHookListener(hook, macro, args, argsRaw = "") {
       } else {
         console.log(`Hook Macros | running macro: ${macro}, from hook: ${hook}`);
         try {
-          filteredMacro.execute(...args, ...hookArgs).then(async function () {
+          filteredMacro.execute({userArgs: args, hookArgs: hookArgs}).then(async function () {
             lastRan = Date.now();
           });
         } catch {}
