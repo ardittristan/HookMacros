@@ -178,7 +178,7 @@ class HookSettingsApplication extends FormApplication {
   }
 
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       id: 'macro-hooks-settings',
       classes: ['sheet'],
       template: 'modules/launchmacro/templates/settingsPopup.html',
@@ -228,7 +228,7 @@ class HookSettingsApplication extends FormApplication {
     let hook = html.find('#newEntry-Hook')[0]?.value || ''
     let macro = html.find('#newEntry-Macro')[0]?.value || ''
     let args = html.find('#newEntry-Args')[0]?.value || ''
-    let id = randomID()
+    let id = foundry.utils.randomID()
 
     let compiledTemplate = settingsEntry({
       hook,
